@@ -1,6 +1,8 @@
 #include "directx.hpp"
 #include "../app/version.hpp"
 #include "../app/filesystem.hpp"
+#include "../app/network.hpp"
+#include "../cheat/cheat.hpp"
 #include <imgui.h>
 #include <backends/imgui_impl_win32.h>
 #include <backends/imgui_impl_dx11.h>
@@ -10,6 +12,7 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 namespace app
 { 
     HWND directx::app_window                                = NULL;
+    WNDCLASSEX directx::w_class;
     ID3D11Device* directx::g_pd3dDevice                     = NULL;
     IDXGISwapChain* directx::g_pSwapChain                   = NULL;
     ID3D11DeviceContext* directx::g_pd3dDeviceContext       = NULL;
@@ -104,7 +107,7 @@ namespace app
 	void directx::initialize()
 	{
         // Create window class
-		WNDCLASSEX w_class = { sizeof(WNDCLASSEX), CS_CLASSDC, wndproc, 0L, 0L, GetModuleHandle(NULL), NULL, NULL, NULL, NULL, L"app_window", NULL };
+	    w_class = { sizeof(WNDCLASSEX), CS_CLASSDC, wndproc, 0L, 0L, GetModuleHandle(NULL), NULL, NULL, NULL, NULL, L"app_window", NULL };
 		RegisterClassEx(&w_class);
 
         // Create window
@@ -159,7 +162,12 @@ namespace app
             ImGui::SetNextWindowPos(ImVec2(0, 0));
             ImGui::Begin("main_imgui", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
 
-            ImGui::Text("WIP");
+            ImGui::Text("Latest cheat version: %s", cheat::latest_version);
+
+            if (ImGui::Button("Download Cheat"))
+            {
+                network::download_file_http("https://github.com/HatchesPls/GrandTheftAutoV-Cheat/releases/download/" + cheat::latest_version + "/GTAV.dll", filesystem::paths::DataDir + "\\GTAV_latest.dll");
+            }
 
             //^//DRAW ABOVE THIS LINE//^//
 
@@ -178,5 +186,13 @@ namespace app
             else
                 presentFlags = 0;
         }
+
+        // Cleanup
+        ImGui_ImplDX11_Shutdown();
+        ImGui_ImplWin32_Shutdown();
+        ImGui::DestroyContext();
+        delete_swapchain();
+        DestroyWindow(app_window);
+        UnregisterClass(w_class.lpszClassName, w_class.hInstance);
     }
 }

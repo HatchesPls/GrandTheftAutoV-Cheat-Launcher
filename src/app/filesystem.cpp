@@ -2,6 +2,11 @@
 
 namespace app
 {
+	const std::string filesystem::paths::UserprofileDir = env_path("userprofile");
+	const std::string filesystem::paths::UserDocumentsDir = UserprofileDir + "\\Documents";
+	const std::string filesystem::paths::DataDir = UserDocumentsDir + "\\GTAV Cheat\\Launcher";
+	const std::string filesystem::paths::CheatModule = DataDir + "\\GTAV.dll";
+
 	std::string filesystem::env_path(std::string var)
 	{
 		char* buf = nullptr;

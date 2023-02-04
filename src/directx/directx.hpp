@@ -9,6 +9,7 @@ namespace app
 	{
 	private:
 		static HWND app_window;
+		static WNDCLASSEX w_class;
 		static ID3D11Device* g_pd3dDevice;
 		static IDXGISwapChain* g_pSwapChain;
 		static ID3D11DeviceContext* g_pd3dDeviceContext;

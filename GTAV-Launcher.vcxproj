@@ -47,7 +47,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalIncludeDirectories>$(SolutionDir)\vendor\imgui\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\vendor\imgui\;$(SolutionDir)\vendor\jsoncpp\include</AdditionalIncludeDirectories>
       <DebugInformationFormat>None</DebugInformationFormat>
     </ClCompile>
     <Link>
@@ -58,10 +58,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\app\app.cpp" />
     <ClCompile Include="src\app\entry_point.cpp" />
     <ClCompile Include="src\app\filesystem.cpp" />
+    <ClCompile Include="src\app\network.cpp" />
     <ClCompile Include="src\app\version.cpp" />
+    <ClCompile Include="src\cheat\cheat.cpp" />
     <ClCompile Include="src\directx\directx.cpp" />
     <ClCompile Include="vendor\imgui\backends\imgui_impl_dx11.cpp" />
     <ClCompile Include="vendor\imgui\backends\imgui_impl_win32.cpp" />
@@ -69,12 +70,16 @@
     <ClCompile Include="vendor\imgui\imgui_draw.cpp" />
     <ClCompile Include="vendor\imgui\imgui_tables.cpp" />
     <ClCompile Include="vendor\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="vendor\jsoncpp\src\lib_json\json_reader.cpp" />
+    <ClCompile Include="vendor\jsoncpp\src\lib_json\json_value.cpp" />
+    <ClCompile Include="vendor\jsoncpp\src\lib_json\json_writer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\app\app.hpp" />
     <ClInclude Include="src\app\entry_point.hpp" />
     <ClInclude Include="src\app\filesystem.hpp" />
+    <ClInclude Include="src\app\network.hpp" />
     <ClInclude Include="src\app\version.hpp" />
+    <ClInclude Include="src\cheat\cheat.hpp" />
     <ClInclude Include="src\directx\directx.hpp" />
     <ClInclude Include="vendor\imgui\backends\imgui_impl_dx11.h" />
     <ClInclude Include="vendor\imgui\backends\imgui_impl_win32.h" />
