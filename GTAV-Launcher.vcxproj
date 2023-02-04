@@ -60,9 +60,11 @@
   <ItemGroup>
     <ClCompile Include="src\app\entry_point.cpp" />
     <ClCompile Include="src\app\filesystem.cpp" />
+    <ClCompile Include="src\app\log.cpp" />
     <ClCompile Include="src\app\network.cpp" />
     <ClCompile Include="src\app\version.cpp" />
     <ClCompile Include="src\cheat\cheat.cpp" />
+    <ClCompile Include="src\cheat\module_inject.cpp" />
     <ClCompile Include="src\directx\directx.cpp" />
     <ClCompile Include="vendor\imgui\backends\imgui_impl_dx11.cpp" />
     <ClCompile Include="vendor\imgui\backends\imgui_impl_win32.cpp" />
@@ -77,9 +79,11 @@
   <ItemGroup>
     <ClInclude Include="src\app\entry_point.hpp" />
     <ClInclude Include="src\app\filesystem.hpp" />
+    <ClInclude Include="src\app\log.hpp" />
     <ClInclude Include="src\app\network.hpp" />
     <ClInclude Include="src\app\version.hpp" />
     <ClInclude Include="src\cheat\cheat.hpp" />
+    <ClInclude Include="src\cheat\module_inject.hpp" />
     <ClInclude Include="src\directx\directx.hpp" />
     <ClInclude Include="vendor\imgui\backends\imgui_impl_dx11.h" />
     <ClInclude Include="vendor\imgui\backends\imgui_impl_win32.h" />

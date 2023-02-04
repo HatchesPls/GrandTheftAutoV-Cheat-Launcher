@@ -2,6 +2,7 @@
 #include <Windows.h>
 #include <d3d11.h>
 #pragma comment(lib, "d3d11.lib")
+#include <string>
 
 namespace app
 {
@@ -15,13 +16,18 @@ namespace app
 		static ID3D11DeviceContext* g_pd3dDeviceContext;
 		static ID3D11RenderTargetView* g_mainRenderTargetView;
 
-
 		static void cleanup_render_target();
 		static void create_render_target();
 		static bool create_swapchain();
 		static void delete_swapchain();
 		static LRESULT WINAPI wndproc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	public:
+		struct imgui_notify
+		{
+			std::string title;
+			std::string contents;
+		};
+
 		static void initialize();
 		static void imgui_loop();
 	};

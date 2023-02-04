@@ -2,5 +2,5 @@
 
 namespace app
 {
-	std::string cheat::latest_version;
+	Json::Value cheat::github_json;
 }

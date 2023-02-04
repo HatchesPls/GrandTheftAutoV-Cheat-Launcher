@@ -3,6 +3,8 @@
 #include "../app/filesystem.hpp"
 #include "../app/network.hpp"
 #include "../cheat/cheat.hpp"
+#include "../cheat/module_inject.hpp"
+#include "../app/log.hpp"
 #include <imgui.h>
 #include <backends/imgui_impl_win32.h>
 #include <backends/imgui_impl_dx11.h>
@@ -17,6 +19,8 @@ namespace app
     IDXGISwapChain* directx::g_pSwapChain                   = NULL;
     ID3D11DeviceContext* directx::g_pd3dDeviceContext       = NULL;
     ID3D11RenderTargetView* directx::g_mainRenderTargetView = NULL;
+
+    struct directx::imgui_notify notification;
 
     void directx::cleanup_render_target()
     {
@@ -112,7 +116,7 @@ namespace app
 
         // Create window
         std::string w_title = "Grand Theft Auto V Cheat Launcher";
-        app_window = CreateWindow(w_class.lpszClassName, std::wstring(w_title.begin(), w_title.end()).c_str(), WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX, 100, 100, 500, 350, NULL, NULL, w_class.hInstance, NULL);
+        app_window = CreateWindow(w_class.lpszClassName, std::wstring(w_title.begin(), w_title.end()).c_str(), WS_CAPTION | WS_SYSMENU, 100, 100, 500, 500, NULL, NULL, w_class.hInstance, NULL);
 	
         // Create DirectX device & swapchain
         if (!create_swapchain())
@@ -157,19 +161,85 @@ namespace app
             ImGui::PushStyleColor(ImGuiCol_TitleBgActive, ImVec4(ImColor(0, 0, 205, 255)));
             ImGui::PushStyleColor(ImGuiCol_PopupBg, ImVec4(ImColor(0, 0, 0, 255)));
 
-            // ImGui Window Setup
-            ImGui::SetNextWindowSize(ImVec2(490, 311));
+            // Make ImGui fill the entire OS window
+            ImGui::SetNextWindowSize(ImVec2(io.DisplaySize.x, io.DisplaySize.y));
             ImGui::SetNextWindowPos(ImVec2(0, 0));
-            ImGui::Begin("main_imgui", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
 
-            ImGui::Text("Latest cheat version: %s", cheat::latest_version);
-
-            if (ImGui::Button("Download Cheat"))
+            // Popup notification
+            if (!notification.contents.empty())
             {
-                network::download_file_http("https://github.com/HatchesPls/GrandTheftAutoV-Cheat/releases/download/" + cheat::latest_version + "/GTAV.dll", filesystem::paths::DataDir + "\\GTAV_latest.dll");
+                ImGui::OpenPopup(notification.title.empty() ? "###ImGuiNotify" : notification.title.c_str());
+                if (ImGui::BeginPopupModal(notification.title.empty() ? "###ImGuiNotify" : notification.title.c_str(), NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
+                {
+                    ImGui::TextWrapped(notification.contents.c_str());
+                    if (ImGui::Button("Close"))
+                    {
+                        notification.title.clear();
+                        notification.contents.clear();
+                        ImGui::CloseCurrentPopup();
+                    }
+                    ImGui::EndPopup();
+                }
             }
 
-            //^//DRAW ABOVE THIS LINE//^//
+            // Create main ImGui window
+            ImGui::Begin("main_imgui", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
+
+            ImGui::Text("Latest cheat version: %s", cheat::github_json["name"].asString());
+
+            if (ImGui::Button("Download & Inject Cheat", ImVec2(ImGui::GetWindowSize().x, 0.f)))
+            {
+                if (network::download_file_http("https://github.com/HatchesPls/GrandTheftAutoV-Cheat/releases/download/" + cheat::github_json["name"].asString() + "/GTAV.dll", filesystem::paths::CheatModule))
+                {
+
+                    module_inject::status status = module_inject::inject(filesystem::paths::CheatModule);
+                    if (status == module_inject::status::INJECT_SUCCEEDED)
+                    {
+                        // Close launcher - injection completed
+                        log::MessageBoxWithAutoClose(app_window, "Injection completed!", "Grand Theft Auto V Cheat Launcher", MB_OK | MB_ICONINFORMATION, 10000);
+                        Message.message = WM_QUIT;
+                    }
+                    else if (status == module_inject::status::GAME_NOT_FOUND)
+                    {
+                        notification.contents = "Please first start the game";
+                    }
+                    else if (status == module_inject::status::OPENPROCESS_FAILED)
+                    {
+                        notification.contents = "Injection failed.\n\nTechnical reason: OpenProcess failed";
+                    }
+                    else if (status == module_inject::status::VIRTUALALLOC_FAILED)
+                    {
+                        notification.contents = "Injection failed.\n\nTechnical reason: VirtualAlloc failed";
+                    }
+                    else if (status == module_inject::status::WRITEPROCESSMEM_FAILED)
+                    {
+                        notification.contents = "Injection failed.\n\nTechnical reason: WriteProcessMem failed";
+                    }
+                    else if (status == module_inject::status::CREATEREMOTETHREAD_FAILED)
+                    {
+                        notification.contents = "Injection failed.\n\nTechnical reason: CreateRemoteThread failed";
+                    }
+                    else if (status == module_inject::status::VIRTUALFREE_FAILED)
+                    {
+                        notification.contents = "Injection failed.\n\nTechnical reason: VirtualFree failed";
+                    }
+                    else if (status == module_inject::status::ERROR_EXIT_CODE)
+                    {
+                        notification.contents = "Injection failed.\n\nTechnical reason: remote thread failure";
+                    }
+                }
+                else
+                {
+                    notification.contents = "Downloading cheat file failed";
+                }
+            }
+
+            std::string ChangelogButton = "Show changelog cheat - " + cheat::github_json["name"].asString();
+            if (ImGui::Button(ChangelogButton.c_str(), ImVec2(ImGui::GetWindowSize().x, 0.f)))
+            {
+                notification.title = "Changelog latest release";
+                notification.contents = cheat::github_json["body"].asCString();
+            }
 
             ImGui::End();
             ImGui::Render();
