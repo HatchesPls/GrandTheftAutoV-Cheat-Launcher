@@ -1,7 +1,6 @@
 #include "directx.hpp"
 #include "../app/version.hpp"
 #include "../app/filesystem.hpp"
-#include "../app/network.hpp"
 #include "../cheat/cheat.hpp"
 #include "../cheat/module_inject.hpp"
 #include "../app/log.hpp"
@@ -115,7 +114,7 @@ namespace app
 		RegisterClassEx(&w_class);
 
         // Create window
-        std::string w_title = "Grand Theft Auto V Cheat Launcher";
+        std::string w_title = "Grand Theft Auto V Cheat Launcher - version: " + (std::string)version_info::version_string;
         app_window = CreateWindow(w_class.lpszClassName, std::wstring(w_title.begin(), w_title.end()).c_str(), WS_CAPTION | WS_SYSMENU, 100, 100, 500, 500, NULL, NULL, w_class.hInstance, NULL);
 	
         // Create DirectX device & swapchain
@@ -165,14 +164,19 @@ namespace app
             ImGui::SetNextWindowSize(ImVec2(io.DisplaySize.x, io.DisplaySize.y));
             ImGui::SetNextWindowPos(ImVec2(0, 0));
 
+            // Create main ImGui window
+            ImGui::Begin("main_imgui", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar);
+
             // Popup notification
             if (!notification.contents.empty())
             {
+                ImGui::SetNextWindowSize(ImVec2(400.f, 400.f), ImGuiCond_Appearing);
                 ImGui::OpenPopup(notification.title.empty() ? "###ImGuiNotify" : notification.title.c_str());
                 if (ImGui::BeginPopupModal(notification.title.empty() ? "###ImGuiNotify" : notification.title.c_str(), NULL, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize))
                 {
                     ImGui::TextWrapped(notification.contents.c_str());
-                    if (ImGui::Button("Close"))
+                    ImGui::Dummy(ImVec2(0, 10.f));
+                    if (ImGui::Button("Close", ImVec2(ImGui::GetWindowContentRegionWidth(), 0)))
                     {
                         notification.title.clear();
                         notification.contents.clear();
@@ -182,58 +186,53 @@ namespace app
                 }
             }
 
-            // Create main ImGui window
-            ImGui::Begin("main_imgui", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
-
             ImGui::Text("Latest cheat version: %s", cheat::github_json["name"].asString());
 
             if (ImGui::Button("Download & Inject Cheat", ImVec2(ImGui::GetWindowSize().x, 0.f)))
             {
-                if (network::download_file_http("https://github.com/HatchesPls/GrandTheftAutoV-Cheat/releases/download/" + cheat::github_json["name"].asString() + "/GTAV.dll", filesystem::paths::CheatModule))
-                {
+                module_inject::status status = module_inject::inject();
 
-                    module_inject::status status = module_inject::inject(filesystem::paths::CheatModule);
-                    if (status == module_inject::status::INJECT_SUCCEEDED)
-                    {
-                        // Close launcher - injection completed
-                        log::MessageBoxWithAutoClose(app_window, "Injection completed!", "Grand Theft Auto V Cheat Launcher", MB_OK | MB_ICONINFORMATION, 10000);
-                        Message.message = WM_QUIT;
-                    }
-                    else if (status == module_inject::status::GAME_NOT_FOUND)
-                    {
-                        notification.contents = "Please first start the game";
-                    }
-                    else if (status == module_inject::status::OPENPROCESS_FAILED)
-                    {
-                        notification.contents = "Injection failed.\n\nTechnical reason: OpenProcess failed";
-                    }
-                    else if (status == module_inject::status::VIRTUALALLOC_FAILED)
-                    {
-                        notification.contents = "Injection failed.\n\nTechnical reason: VirtualAlloc failed";
-                    }
-                    else if (status == module_inject::status::WRITEPROCESSMEM_FAILED)
-                    {
-                        notification.contents = "Injection failed.\n\nTechnical reason: WriteProcessMem failed";
-                    }
-                    else if (status == module_inject::status::CREATEREMOTETHREAD_FAILED)
-                    {
-                        notification.contents = "Injection failed.\n\nTechnical reason: CreateRemoteThread failed";
-                    }
-                    else if (status == module_inject::status::VIRTUALFREE_FAILED)
-                    {
-                        notification.contents = "Injection failed.\n\nTechnical reason: VirtualFree failed";
-                    }
-                    else if (status == module_inject::status::ERROR_EXIT_CODE)
-                    {
-                        notification.contents = "Injection failed.\n\nTechnical reason: remote thread failure";
-                    }
-                }
-                else
+                if (status == module_inject::status::INJECT_SUCCEEDED)
                 {
-                    notification.contents = "Downloading cheat file failed";
+                    // Close launcher - injection completed
+                    log::MessageBoxWithAutoClose(app_window, "Injection completed!", "Grand Theft Auto V Cheat Launcher", MB_OK | MB_ICONINFORMATION, 10000);
+                    Message.message = WM_QUIT;
+                }
+                else if (status == module_inject::status::GAME_NOT_FOUND)
+                {
+                    notification.contents = "Please first start the game";
+                }
+                else if (status == module_inject::status::DOWNLOAD_FAILED)
+                {
+                    notification.contents = "Downloading cheat module failed";
+                }
+                else if (status == module_inject::status::OPENPROCESS_FAILED)
+                {
+                    notification.contents = "Injection failed.\n\nTechnical reason: OpenProcess failed";
+                }
+                else if (status == module_inject::status::VIRTUALALLOC_FAILED)
+                {
+                    notification.contents = "Injection failed.\n\nTechnical reason: VirtualAlloc failed";
+                }
+                else if (status == module_inject::status::WRITEPROCESSMEM_FAILED)
+                {
+                    notification.contents = "Injection failed.\n\nTechnical reason: WriteProcessMem failed";
+                }
+                else if (status == module_inject::status::CREATEREMOTETHREAD_FAILED)
+                {
+                    notification.contents = "Injection failed.\n\nTechnical reason: CreateRemoteThread failed";
+                }
+                else if (status == module_inject::status::VIRTUALFREE_FAILED)
+                {
+                    notification.contents = "Injection failed.\n\nTechnical reason: VirtualFree failed";
+                }
+                else if (status == module_inject::status::ERROR_EXIT_CODE)
+                {
+                    notification.contents = "Injection failed.\n\nTechnical reason: remote thread failure";
                 }
             }
 
+            ImGui::SetCursorPosY(420.f);
             std::string ChangelogButton = "Show changelog cheat - " + cheat::github_json["name"].asString();
             if (ImGui::Button(ChangelogButton.c_str(), ImVec2(ImGui::GetWindowSize().x, 0.f)))
             {

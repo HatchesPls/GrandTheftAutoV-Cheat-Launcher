@@ -12,7 +12,8 @@ namespace app
 		public:
 			static const std::string UserprofileDir;
 			static const std::string UserDocumentsDir;
-			static const std::string DataDir;
+			static const std::string CheatDir;
+			static const std::string LauncherDir;
 			static const std::string CheatModule;
 		};
 		static std::string env_path(std::string var);

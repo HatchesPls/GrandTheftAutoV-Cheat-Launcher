@@ -9,14 +9,11 @@ using namespace app;
 // App entry point
 int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR pCmdLine, _In_ int nShowCmd)
 {
-	// Setup directory
-	if (!std::filesystem::exists(filesystem::paths::DataDir))
-	{
-		std::filesystem::create_directory(filesystem::paths::DataDir);
-
-		// Set "Launcher" directory hidden - user rarerly needs to access it directly
-		SetFileAttributesA(filesystem::paths::DataDir.c_str(), FILE_ATTRIBUTE_HIDDEN);
-	}
+	// Create directories
+	if (!std::filesystem::exists(filesystem::paths::CheatDir))
+		std::filesystem::create_directory(filesystem::paths::CheatDir);
+	if (!std::filesystem::exists(filesystem::paths::LauncherDir))
+		std::filesystem::create_directory(filesystem::paths::LauncherDir);
 
 	// Launcher update check with auto update - TODO
 		

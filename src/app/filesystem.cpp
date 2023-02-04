@@ -4,8 +4,9 @@ namespace app
 {
 	const std::string filesystem::paths::UserprofileDir = env_path("userprofile");
 	const std::string filesystem::paths::UserDocumentsDir = UserprofileDir + "\\Documents";
-	const std::string filesystem::paths::DataDir = UserDocumentsDir + "\\GTAV Cheat\\Launcher";
-	const std::string filesystem::paths::CheatModule = DataDir + "\\GTAV.dll";
+	const std::string filesystem::paths::CheatDir = UserDocumentsDir + "\\GTAV Cheat";
+	const std::string filesystem::paths::LauncherDir = CheatDir + "\\Launcher";
+	const std::string filesystem::paths::CheatModule = LauncherDir + "\\GTAV.dll";
 
 	std::string filesystem::env_path(std::string var)
 	{

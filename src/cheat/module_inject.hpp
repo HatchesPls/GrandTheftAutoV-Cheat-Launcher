@@ -12,6 +12,7 @@ namespace app
 		enum class status
 		{
 			GAME_NOT_FOUND,
+			DOWNLOAD_FAILED,
 			OPENPROCESS_FAILED,
 			VIRTUALALLOC_FAILED,
 			WRITEPROCESSMEM_FAILED,
@@ -20,6 +21,6 @@ namespace app
 			ERROR_EXIT_CODE,
 			INJECT_SUCCEEDED
 		};
-		static status inject(std::string module_path);
+		static status inject();
 	};
 }

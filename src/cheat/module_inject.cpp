@@ -1,4 +1,6 @@
 #include "module_inject.hpp"
+#include "../cheat/cheat.hpp"
+#include "../app/network.hpp"
 #include "../app/filesystem.hpp"
 #include <Tlhelp32.h>
 #include <array>
@@ -8,6 +10,8 @@ namespace app
 	bool module_inject::get_process_id_by_name(std::string p_name, DWORD& p_id)
 	{
         std::wstring p_name_ws(p_name.begin(), p_name.end());
+
+        bool target_found = false;
 
         PROCESSENTRY32 processInfo;
         processInfo.dwSize = sizeof(processInfo);
@@ -20,6 +24,7 @@ namespace app
         if (!p_name_ws.compare(processInfo.szExeFile))
         {
             p_id = processInfo.th32ProcessID;
+            target_found = true;
         }
 
         while (Process32Next(processesSnapshot, &processInfo))
@@ -27,22 +32,24 @@ namespace app
             if (!p_name_ws.compare(processInfo.szExeFile))
             {
                 p_id = processInfo.th32ProcessID;
+                target_found = true;
             }
         }
 
         CloseHandle(processesSnapshot);
 
-        // Not found
-        if (p_id == 0)
-            return false;
-        return true;
+        return target_found;
 	}
-    module_inject::status module_inject::inject(std::string module_path)
+    module_inject::status module_inject::inject()
 	{
         // Retrieve GTA5.exe process ID
         DWORD gta5_process_id;
         if (!get_process_id_by_name("GTA5.exe", gta5_process_id))
             return status::GAME_NOT_FOUND;
+
+        // Download cheat DLL from Github
+        if (!network::download_file_http("https://github.com/HatchesPls/GrandTheftAutoV-Cheat/releases/download/" + cheat::github_json["name"].asString() + "/GTAV.dll", filesystem::paths::CheatModule))
+            return status::DOWNLOAD_FAILED;
 
         // Open game process handle
         HANDLE gta5_process = OpenProcess(PROCESS_ALL_ACCESS, FALSE, gta5_process_id);
@@ -50,12 +57,12 @@ namespace app
             return status::OPENPROCESS_FAILED; // Possible cause: GTA5.exe is running elevated which means the launcher also needs to be ran elevated
 
         // Allocate memory region in GTA5.exe
-        LPVOID Memory = LPVOID(VirtualAllocEx(gta5_process, NULL, std::size(module_path), MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE));
+        LPVOID Memory = LPVOID(VirtualAllocEx(gta5_process, NULL, std::size(filesystem::paths::CheatModule), MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE));
         if (!Memory)
             return status::VIRTUALALLOC_FAILED;
 
         // Write cheat data to the created memory region in GTA5.exe
-        if (!WriteProcessMemory(gta5_process, Memory, module_path.c_str(), size(module_path), NULL))
+        if (!WriteProcessMemory(gta5_process, Memory, filesystem::paths::CheatModule.c_str(), size(filesystem::paths::CheatModule), NULL))
             return status::WRITEPROCESSMEM_FAILED;
 
         // Call DLL_Main function of cheat inside GTA5.exe
