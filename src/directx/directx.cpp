@@ -110,7 +110,7 @@ namespace app
 	void directx::initialize()
 	{
         // Create window class
-	    w_class = { sizeof(WNDCLASSEX), CS_CLASSDC, wndproc, 0L, 0L, GetModuleHandle(NULL), NULL, NULL, NULL, NULL, L"app_window", NULL };
+	    w_class = { sizeof(WNDCLASSEX), CS_CLASSDC, wndproc, 0L, 0L, GetModuleHandle(NULL), NULL, NULL, NULL, NULL, L"gtav_cl_app", NULL };
 		RegisterClassEx(&w_class);
 
         // Create window
@@ -186,9 +186,7 @@ namespace app
                 }
             }
 
-            ImGui::Text("Latest cheat version: %s", cheat::github_json["name"].asString());
-
-            if (ImGui::Button("Download & Inject Cheat", ImVec2(ImGui::GetWindowSize().x, 0.f)))
+            if (ImGui::Button("LOAD", ImVec2(ImGui::GetWindowSize().x, 50.f)))
             {
                 module_inject::status status = module_inject::inject();
 

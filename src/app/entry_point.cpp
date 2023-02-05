@@ -9,6 +9,16 @@ using namespace app;
 // App entry point
 int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPWSTR pCmdLine, _In_ int nShowCmd)
 {
+	// We only want one launcher instance running
+	auto instance_h = FindWindowA("gtav_cl_app", NULL);
+	if (instance_h)
+	{
+		// Another instance is already running - set that instance's window to foreground
+		SetForegroundWindow(instance_h);
+		CloseHandle(instance_h);
+		std::exit(EXIT_SUCCESS);
+	}
+
 	// Create directories
 	if (!std::filesystem::exists(filesystem::paths::CheatDir))
 		std::filesystem::create_directory(filesystem::paths::CheatDir);
@@ -20,7 +30,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
 	// Make sure Github API rate limit is not reached for our current public IP address
 	if (network::github_api_rate_limit_reached())
 	{
-		MessageBoxA(NULL, "Failed to fetch data from Github, API rate limit has been reached.\n\nPlease wait 30-60 minutes and try again.", "Grand Theft Auto V Cheat Launcher", MB_OK | MB_ICONEXCLAMATION);
+		MessageBoxA(NULL, "Failed to fetch data from Github because API rate limit has been reached.\n\nPlease wait 30-60 minutes and try again.", "Grand Theft Auto V Cheat Launcher", MB_OK | MB_ICONEXCLAMATION);
 		std::exit(EXIT_FAILURE);
 	}
 
