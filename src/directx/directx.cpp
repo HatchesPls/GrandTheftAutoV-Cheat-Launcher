@@ -134,7 +134,7 @@ namespace app
         io.IniFilename = NULL;
         ImGui_ImplWin32_Init(app_window);
         ImGui_ImplDX11_Init(g_pd3dDevice, g_pd3dDeviceContext);
-        std::string FontLocation = filesystem::env_path("SystemDrive") + (std::string)"\\Windows\\Fonts\\Verdana.ttf";
+        std::string FontLocation = filesystem::env_path("SystemDrive") + (std::string)"\\Windows\\Fonts\\Arial.ttf";
         if (std::filesystem::exists(FontLocation))
             io.Fonts->AddFontFromFileTTF(FontLocation.c_str(), 23.f);
 
@@ -186,10 +186,28 @@ namespace app
                 }
             }
 
+            ImGui::Text("Current: %s", cheat::github_json["name"].asString());
+            std::string ChangelogButton = "Show changelog";
+            if (ImGui::Button(ChangelogButton.c_str(), ImVec2(ImGui::GetWindowSize().x / 2, 0.f)))
+            {
+                notification.title = "Changelog " + cheat::github_json["name"].asString();
+                notification.contents = cheat::github_json["body"].asCString();
+            }
+            if (ImGui::Button("Visit GitHub repository", ImVec2(ImGui::GetWindowSize().x / 2, 0.f)))
+            {
+                system("start https://github.com/HatchesPls/GrandTheftAutoV-Cheat");
+            }
+            if (ImGui::Button("Report issue", ImVec2(ImGui::GetWindowSize().x / 2, 0.f)))
+            {
+                system("start https://github.com/HatchesPls/GrandTheftAutoV-Cheat/issues");
+            }
+
+            ImGui::SetCursorPosY(400.f);
             if (ImGui::Button("LOAD", ImVec2(ImGui::GetWindowSize().x, 50.f)))
             {
                 module_inject::status status = module_inject::inject();
 
+                std::string technical_fail_reason = "Injection failed. Reason: ";
                 if (status == module_inject::status::INJECT_SUCCEEDED)
                 {
                     // Close launcher - injection completed
@@ -198,44 +216,36 @@ namespace app
                 }
                 else if (status == module_inject::status::GAME_NOT_FOUND)
                 {
-                    notification.contents = "Please first start the game";
+                    notification.contents = technical_fail_reason.append("you must first start GTA5");
                 }
                 else if (status == module_inject::status::DOWNLOAD_FAILED)
                 {
-                    notification.contents = "Downloading cheat module failed";
+                    notification.contents = technical_fail_reason.append(" downloading cheat module failed");
                 }
                 else if (status == module_inject::status::OPENPROCESS_FAILED)
                 {
-                    notification.contents = "Injection failed.\n\nTechnical reason: OpenProcess failed";
+                    notification.contents = technical_fail_reason.append(" openprocess failed");
                 }
                 else if (status == module_inject::status::VIRTUALALLOC_FAILED)
                 {
-                    notification.contents = "Injection failed.\n\nTechnical reason: VirtualAlloc failed";
+                    notification.contents = technical_fail_reason.append(" VirtualAlloc failed");
                 }
                 else if (status == module_inject::status::WRITEPROCESSMEM_FAILED)
                 {
-                    notification.contents = "Injection failed.\n\nTechnical reason: WriteProcessMem failed";
+                    notification.contents = technical_fail_reason.append(" WriteProcessMem failed");
                 }
                 else if (status == module_inject::status::CREATEREMOTETHREAD_FAILED)
                 {
-                    notification.contents = "Injection failed.\n\nTechnical reason: CreateRemoteThread failed";
+                    notification.contents = technical_fail_reason.append(" CreateRemoteThread failed");
                 }
                 else if (status == module_inject::status::VIRTUALFREE_FAILED)
                 {
-                    notification.contents = "Injection failed.\n\nTechnical reason: VirtualFree failed";
+                    notification.contents = technical_fail_reason.append(" VirtualFree failed");
                 }
                 else if (status == module_inject::status::ERROR_EXIT_CODE)
                 {
-                    notification.contents = "Injection failed.\n\nTechnical reason: remote thread failure";
+                    notification.contents = technical_fail_reason.append(" remote thread start failure");
                 }
-            }
-
-            ImGui::SetCursorPosY(420.f);
-            std::string ChangelogButton = "Show changelog cheat - " + cheat::github_json["name"].asString();
-            if (ImGui::Button(ChangelogButton.c_str(), ImVec2(ImGui::GetWindowSize().x, 0.f)))
-            {
-                notification.title = "Changelog latest release";
-                notification.contents = cheat::github_json["body"].asCString();
             }
 
             ImGui::End();

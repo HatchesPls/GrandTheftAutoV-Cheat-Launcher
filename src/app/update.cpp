@@ -22,6 +22,10 @@ namespace app
 			{
 				std::string launcher_path_and_name = filesystem::launcher_path() + "\\" + filesystem::launcher_filename();
 
+				// Remove .old launcher file if it exists at this point (it shouldn't though)
+				if (std::filesystem::exists(filesystem::paths::OldLauncher))
+					std::remove(filesystem::paths::OldLauncher.c_str());
+
 				// Rename current old launcher file
 				if (rename(launcher_path_and_name.c_str(), filesystem::paths::OldLauncher.c_str()))
 				{

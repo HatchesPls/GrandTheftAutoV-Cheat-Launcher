@@ -8,7 +8,7 @@ namespace app
 	const std::string filesystem::paths::CheatDir = UserDocumentsDir + "\\GTAV Cheat";
 	const std::string filesystem::paths::LauncherDir = CheatDir + "\\Launcher";
 	const std::string filesystem::paths::CheatModule = LauncherDir + "\\GTAV.dll";
-	const std::string filesystem::paths::OldLauncher = launcher_path() + "\\GTAVCheat_Launcher.exe.old";
+	const std::string filesystem::paths::OldLauncher = launcher_path() + launcher_filename() + ".old";
 
 	std::string filesystem::env_path(std::string var)
 	{
