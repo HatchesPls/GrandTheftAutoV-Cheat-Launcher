@@ -1,4 +1,5 @@
 #include "filesystem.hpp"
+#include <Windows.h>
 
 namespace app
 {
@@ -7,6 +8,7 @@ namespace app
 	const std::string filesystem::paths::CheatDir = UserDocumentsDir + "\\GTAV Cheat";
 	const std::string filesystem::paths::LauncherDir = CheatDir + "\\Launcher";
 	const std::string filesystem::paths::CheatModule = LauncherDir + "\\GTAV.dll";
+	const std::string filesystem::paths::OldLauncher = launcher_path() + "\\GTAVCheat_Launcher.exe.old";
 
 	std::string filesystem::env_path(std::string var)
 	{
@@ -19,5 +21,17 @@ namespace app
 			free(buf);
 		}
 		return ReturnVal;
+	}
+	std::string filesystem::launcher_filename()
+	{
+		char launcher_filename[MAX_PATH];
+		GetModuleFileNameA(NULL, launcher_filename, MAX_PATH);
+		return std::filesystem::path(launcher_filename).filename().string();
+	}
+	std::string filesystem::launcher_path()
+	{
+		char launcher_file_path[MAX_PATH];
+		GetModuleFileNameA(NULL, launcher_file_path, MAX_PATH);
+		return std::filesystem::path(launcher_file_path).parent_path().string();
 	}
 }

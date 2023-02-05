@@ -6,6 +6,5 @@ namespace app
 	{
 	public:
 		static const char* version_string;
-		static int version_int;
 	};
 }

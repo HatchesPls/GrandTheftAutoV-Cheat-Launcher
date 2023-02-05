@@ -15,7 +15,10 @@ namespace app
 			static const std::string CheatDir;
 			static const std::string LauncherDir;
 			static const std::string CheatModule;
+			static const std::string OldLauncher;
 		};
 		static std::string env_path(std::string var);
+		static std::string launcher_filename();
+		static std::string launcher_path();
 	};
 }

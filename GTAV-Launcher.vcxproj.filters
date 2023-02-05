@@ -72,6 +72,12 @@
     <ClCompile Include="src\app\log.cpp">
       <Filter>app</Filter>
     </ClCompile>
+    <ClCompile Include="src\app\update.cpp">
+      <Filter>app</Filter>
+    </ClCompile>
+    <ClCompile Include="src\app\app.cpp">
+      <Filter>app</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\app\version.hpp">
@@ -120,6 +126,12 @@
       <Filter>cheat</Filter>
     </ClInclude>
     <ClInclude Include="src\app\log.hpp">
+      <Filter>app</Filter>
+    </ClInclude>
+    <ClInclude Include="src\app\update.hpp">
+      <Filter>app</Filter>
+    </ClInclude>
+    <ClInclude Include="src\app\app.hpp">
       <Filter>app</Filter>
     </ClInclude>
   </ItemGroup>
