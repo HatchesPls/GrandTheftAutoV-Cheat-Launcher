@@ -9,7 +9,6 @@ namespace app
 	class directx
 	{
 	private:
-		static HWND app_window;
 		static WNDCLASSEX w_class;
 		static ID3D11Device* g_pd3dDevice;
 		static IDXGISwapChain* g_pSwapChain;
@@ -22,6 +21,8 @@ namespace app
 		static void delete_swapchain();
 		static LRESULT WINAPI wndproc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 	public:
+		static HWND app_window;
+
 		struct imgui_notify
 		{
 			std::string title;

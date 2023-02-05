@@ -120,7 +120,7 @@ namespace app
         // Create DirectX device & swapchain
         if (!create_swapchain())
         {
-            // Fatal error -> error handling here
+            log::ShowMsgBox("Failed to create DirectX device", MB_OK | MB_ICONERROR, 0);
         }
 
         // Show window
@@ -193,7 +193,7 @@ namespace app
                 if (status == module_inject::status::INJECT_SUCCEEDED)
                 {
                     // Close launcher - injection completed
-                    log::MessageBoxWithAutoClose(app_window, "Injection completed!", "Grand Theft Auto V Cheat Launcher", MB_OK | MB_ICONINFORMATION, 10000);
+                    log::ShowMsgBox("Injection completed!", MB_OK | MB_ICONINFORMATION, 10000);
                     Message.message = WM_QUIT;
                 }
                 else if (status == module_inject::status::GAME_NOT_FOUND)
